@@ -18,58 +18,63 @@ public class SuperStructure extends SubsystemBase {
      * The top 2 state names are placeholders. 
      */
     public enum SuperState {
-        state1,
-        state2,
+        //TODO: decide and create more states (and remove examples)
+        example1,
+        example2,
         autonomousEnter,
         autonomous,
         autonomousExit,
     }
 
-    /** This represents a subsystem*/
-    private final Example example;
+    //Subsystem Variables
+    private final Swerve swerve;
+    private final Vision vision;
+    private final Example exampleMechanism; // object for an example subsystem that controls a mechanism
+    //TODO: decide and create other subsystems
 
-    /** Buttons of controllers can be assigned to booleans which are checked in various super states. */
+    // Buttons of controllers can be assigned to booleans which are checked in various super states. 
     private final XboxController driverController = new XboxController(0);
     private final XboxController operatorController = new XboxController(1);
 
-    private SuperState superState = SuperState.state1;
+    /** This represents the current superstate of the robot */
+    private SuperState superState = SuperState.example1;
 
     private boolean inAuto = false;
-    private int autoIndex = 0;
 
     /**
      * The constructor will take each subsystem as an argument and save them as objects in the class. 
      * @param subsystem represents a subsystem. 
      */
-    public SuperStructure(Example example){
-        this.example = example;
+    public SuperStructure(Swerve swerve, Vision vision, Example exampleMechanism){
+        this.swerve = swerve;
+        this.vision = vision;
+        this.exampleMechanism = exampleMechanism;
     }
 
     /**
      * This method runs every iteration (every 20ms). Actions like state management and stateless logic are run here.
      */
     public void periodic(){
-
+        manageSuperState(superState);
     }
 
     /**
      * This method is run every iteration (20ms) only in simulation mode. Can be used to update simulated mechanisms or sensors.
      */
-    public void simulationPeriodic(){
-
-    }
+    public void simulationPeriodic(){}
 
     /**
      * This is called the state manager. It checks the value of the SuperState argument and calls the method associated with it.
+     * <p>Each state will have its own case statement, returning its state method.
      * @param state the SuperState value
      * @return the condition of the state determined by the state method.
      */
     private boolean manageSuperState(SuperState state){
         switch(state){
-            case state1:
-                return state1();
-            case state2:
-                return state2();
+            case example1:
+                return example1();
+            case example2:
+                return example2();
             case autonomous:
                 return autonomous();
             case autonomousEnter:
@@ -77,7 +82,7 @@ public class SuperStructure extends SubsystemBase {
             case autonomousExit:
                 return autonomousExit();
             default:
-                return true;
+                return defaultState(state);
         }
     }
 
@@ -87,11 +92,11 @@ public class SuperStructure extends SubsystemBase {
      * @return true if the state is complete. The condition could represent mechanisms at a setpoint, a beambreak trigger, a timer, etc.
      * Mainly used for autonomous routines.
      */
-    private boolean state1(){
+    private boolean example1(){
         return true;
     }
 
-    private boolean state2(){
+    private boolean example2(){
         return true;
     }
 
@@ -102,7 +107,6 @@ public class SuperStructure extends SubsystemBase {
      * @return true since there is no logic to compute
      */
     private boolean autonomousEnter(){
-        autoIndex = 0;
         superState = SuperState.autonomous;
         autonomous();
         return true;
@@ -130,6 +134,17 @@ public class SuperStructure extends SubsystemBase {
      */
     private boolean autonomousExit(){
         inAuto = false;
+        return true;
+    }
+
+    /**
+     * The method called when the state method of the managed SuperState is not called.
+     * @param state
+     * @return
+     */
+    private boolean defaultState(SuperState state){
+        System.err.println("The SuperState \"" + state.name() + "\" does not have a state method or it was not called."
+            + "\nPlease return the state method in a new case statement in manageState()");
         return true;
     }
 
