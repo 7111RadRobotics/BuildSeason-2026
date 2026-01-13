@@ -134,31 +134,9 @@ public class PathMaster {
         path.setPoseSupplier(suppliedPose);
         path.setSpeedSuppliers(()-> xCalculation, ()-> yCalculation, ()-> rotCalculation);
         path.flipPath(shouldFlipPath, isPathMirrored);
-        path.avoidFieldElements(avoidFieldElements, fieldElements);
+        path.avoidFieldElements(avoidFieldElements, fieldElements, path, suppliedPose);
         path.initialize();
     }
-
-    Translation2d waypointPos = null;
-    Translation2d currentPos = null;
-    double H = 0;
-    double fieldLength = 0;
-    double fieldWidth = 0;
-    final double gridSize = 0.25;
-    final double robotRadius = 0.4;
-    private PosePlanning planner = new PosePlanning();
-    double[][] directions = {
-        {1,0},
-        {0,1},
-        {-1,0},
-        {0,-1},
-        {1,1},
-        {-1,1},
-        {1,-1},
-        {-1,-1},
-    };
-    double currentX = 0;
-    double currentY = 0;
-    double F = 0;
 
     /**
      * Runs the path's periodic and calculates the speed suppliers for x, y, and rotation.
@@ -170,35 +148,6 @@ public class PathMaster {
         rotCalculation = rotPID.calculate(
                             suppliedPose.get().getRotation().getDegrees(), 
                             path.getCurrentWaypoint().getPose().getRotation().getDegrees()) * invertedRot;
-        if (pathfinding) {
-            waypointPos = path.getCurrentWaypoint().getPose().getTranslation();
-            currentPos = suppliedPose.get().getTranslation();
-            currentX = currentPos.getX();
-            currentY = currentPos.getY();
-            H = Math.hypot(
-                waypointPos.getX() - currentPos.getX(),
-                waypointPos.getY() - currentPos.getY()
-            );
-            currentPosition = suppliedPose.get().getTranslation();
-            G = Math.sqrt(
-                Math.pow(currentPosition.getX() - initialPosition.getX(), 2) +
-                Math.pow(currentPosition.getY() - initialPosition.getY(), 2)
-            );
-            F = H + G;
-            for (double[] dir : directions) {
-                double nx = currentX + dir[0];
-                double ny = currentY + dir[1];
-            
-                double neighborX = nx * gridSize;
-                double neighborY = ny * gridSize;
-
-                Translation2d neighbor = new Translation2d(neighborX, neighborY);
-
-                if (planner.isBlocked(neighbor, robotRadius)) {
-                    continue;
-                }
-            }
-        }
     }
 
     /**

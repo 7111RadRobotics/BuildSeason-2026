@@ -1,9 +1,12 @@
 package team7111.lib.pathfinding;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -26,6 +29,33 @@ public class Path {
     
     private Waypoint[] waypoints;
     private boolean isPathFinished = false;
+
+    Translation2d waypointPos = null;
+    Translation2d currentPos = null;
+    double currentDistance = 0;
+    double fieldLength = 0;
+    double fieldWidth = 0;
+    final double gridSize = 0.25;
+    final double robotRadius = 0.4;
+    private PosePlanning planner = new PosePlanning();
+    double[][] directions = {
+        {1,0},
+        {0,1},
+        {-1,0},
+        {0,-1},
+        {1,1},
+        {-1,1},
+        {1,-1},
+        {-1,-1},
+    };
+    double currentX = 0;
+    double currentY = 0;
+    double pathWeight = 0;
+    Map<Translation2d, Boolean> neighborStatus = new HashMap<>();
+    Map<Translation2d, Double> fScore = new HashMap<>();
+    private double startDistance = 0;
+    private Translation2d initialPosition = null;
+    private Translation2d currentPosition = null;
 
     /**
      * Constructs a path from several waypoints. Uses pathMaster class to define parameters.
@@ -227,16 +257,51 @@ public class Path {
     /**
      * Routs around any objects in the path
      */
-    public void avoidFieldElements(boolean avoidFieldElements, FieldElement[] fieldElements){
+public void avoidFieldElements(boolean avoidFieldElements, FieldElement[] fieldElements, Path path, Supplier<Pose2d> suppliedPose){
         if(!avoidFieldElements){
             return;
         }
+        if (avoidFieldElements) {
+                waypointPos = path.getCurrentWaypoint().getPose().getTranslation();
+                currentPos = suppliedPose.get().getTranslation();
 
-        
+                double currentX = (double) Math.round(currentPos.getX() / gridSize);
+                double currentY = (double) Math.round(currentPos.getY() / gridSize);
 
-        //Figure out pathfinding algorithm. TODO
-        //https://en.wikipedia.org/wiki/A*_search_algorithm
-        //Use A* algorithm?
+                currentDistance = Math.hypot(
+                    waypointPos.getX() - currentPos.getX(),
+                    waypointPos.getY() - currentPos.getY()
+                );
+                currentPosition = suppliedPose.get().getTranslation();
+                startDistance = Math.sqrt(
+                    Math.pow(currentPosition.getX() - initialPosition.getX(), 2) +
+                    Math.pow(currentPosition.getY() - initialPosition.getY(), 2)
+                );
+                pathWeight = currentDistance + startDistance;
+
+                neighborStatus.clear();
+                fScore.clear();
+
+                for (double[] dir : directions) {
+                    double nx = currentX + dir[0];
+                    double ny = currentY + dir[1];
+
+                    Translation2d neighbor = new Translation2d(nx * gridSize, ny * gridSize);
+
+                    if (planner.isBlocked(neighbor, robotRadius)) {
+                        neighborStatus.put(neighbor, true);
+                        continue;
+                    }
+
+                    neighborStatus.put(neighbor, false);
+
+                    double startDistance = currentPos.getDistance(neighbor);
+                    double currentDistance = neighbor.getDistance(waypointPos);
+                    double pathWeight = startDistance + currentDistance;
+                    fScore.put(neighbor, pathWeight);
+                    System.out.println("Neighbor " + neighbor + " | G=" + startDistance + " H=" + currentDistance + " F=" + pathWeight);
+                }
+        }
     }
     
     /**
