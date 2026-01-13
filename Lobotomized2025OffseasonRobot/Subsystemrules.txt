@@ -1,0 +1,44 @@
+Names:
+    Enums
+        -Pascalcase (ThisIsPascalCase)
+        values inside enums: Camelcase (thisIsCamelCase)
+    Methods
+        -Camelcase (thisIsCamelCase)
+    Classes
+        -Pascalcase
+
+CLASSES
+
+Order:
+    ENUMS
+    VARIABLES
+    METHODS
+        -Constructor(s) 
+        -Periodic methods go just below constructor (ex. periodic, simulationPeriodic)
+        -State related methods (ex. manageState, setState)
+        -Set and get methods (ex. setShooterAngle)
+        -Other methods
+        -Case methods (share names with enum values)
+
+METHODS
+
+(mostly) Needed Methods for Subsytems:
+    void periodic()
+    void simulationPeriodic()
+    void manageState()
+    void setState(NameState)
+    NameState getState()
+
+Similar things go together.
+
+    Variable examples:
+        pivotMotor
+        pivotController
+
+        shooterstate
+        actualstate
+
+    Method examples:
+        setState()
+        getState()
+
