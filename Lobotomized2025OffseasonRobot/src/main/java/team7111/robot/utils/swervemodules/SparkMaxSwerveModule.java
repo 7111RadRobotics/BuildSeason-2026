@@ -103,7 +103,7 @@ public class SparkMaxSwerveModule implements GenericSwerveModule {
 
     @Override
     public void zeroWheels(){
-        angleEncoder.setPosition(Units.degreesToRotations((encoder.getPosition().getDegrees()) - encoderOffsetDegrees));
+        angleEncoder.setPosition(Units.degreesToRotations(((encoder.getPosition().getDegrees()) - encoderOffsetDegrees))*angleGearRatio);
     }
 
     public void configure(){

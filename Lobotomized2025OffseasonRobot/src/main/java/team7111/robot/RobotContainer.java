@@ -86,7 +86,7 @@ public class RobotContainer {
         swerve.setJoysickInputs(
             () -> -ControllerConstants.xDriveLimiter.calculate((Math.pow(driverController.getLeftX(), 1) / SwerveConstants.sensitivity)), 
             () -> -ControllerConstants.yDriveLimiter.calculate((Math.pow(driverController.getLeftY(), 1) / SwerveConstants.sensitivity)),  
-            () -> -ControllerConstants.rotationLimiter.calculate((Math.pow(driverController.getRightX(), 3) / SwerveConstants.sensitivity)));
+            () -> ControllerConstants.rotationLimiter.calculate((Math.pow(driverController.getRightX(), 3) / SwerveConstants.sensitivity)));
 
         swerve.setDriveFieldRelative(true);
 
