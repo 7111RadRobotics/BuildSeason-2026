@@ -23,15 +23,17 @@ public class VisionSubsystem extends SubsystemBase{
     
     /** Offset from horizontal of the camera angle */
     private final double cameraOffset = 0.0;
-
     /** Offset from horizontal that the shooter's minimum value is */
     private final double shooterAngleOffset = 37.0;
-
-    /** Offset added to the camera to get to the shooter */
+    /** Offset added to the camera to get to the shooter, in meters */
     private final double shooterXOffset = 0.0;
-    
-    /** Offset added to the camera to get to the shooter */
+    /** Offset added to the camera to get to the shooter, in meters */
     private final double shooterZOffset = 0.0;
+    /** Offset from the target to the aiming point, in meters*/
+    private final double targetHeightOffset = 0.0;
+    /** Offset from the target to the aiming, in meters  */
+    private final double targetXOffset = 0.0;
+    
     /**
      * Length is the number of cameras.
      * Each index is the position of the camera.
@@ -97,15 +99,16 @@ public class VisionSubsystem extends SubsystemBase{
      * @return value between 0 and 30 digrees
      */
     public double shooterAngle() {
-        
+        //Z is height, X is distance, Y is X or y offset (irrelevant)
+
         Transform3d distanceToTarget = cameraList[0].getCamToTarget();
 
         if(distanceToTarget == null) {
             return 0;
         }
 
-        double height = distanceToTarget.getZ() + shooterZOffset;
-        double distance = distanceToTarget.getX() + shooterXOffset;
+        double height = distanceToTarget.getZ() + shooterZOffset + targetHeightOffset;
+        double distance = distanceToTarget.getX() + shooterXOffset + targetXOffset;
 
         double directDistance = height * height + distance * distance;
         directDistance = Math.sqrt(directDistance);
@@ -119,7 +122,11 @@ public class VisionSubsystem extends SubsystemBase{
             calculatedAngle = 0;
         }
 
+        //Adds angle offsets
         calculatedAngle = calculatedAngle + cameraOffset + shooterAngleOffset;
+        //Adds 90 degree offset to the shooter angle to align with input needed
+        calculatedAngle = calculatedAngle + 90;
+
         return calculatedAngle;
     }
 }
