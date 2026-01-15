@@ -61,31 +61,31 @@ public class DrivebaseConfig {
         SwerveMotorConfig driveMotorConfig = new SwerveMotorConfig(DCMotor.getNEO(1), driveInversion, driveBrakeMode, driveGearing, driveMOI, driveCurrentLimit, drivePID, driveFF);
         SwerveMotorConfig angleMotorConfig = new SwerveMotorConfig(DCMotor.getNEO(1), angleInversion, angleBrakeMode, angleGearing, angleMOI, angleCurrentLimit, anglePID, angleFF);
         CANcoderConfiguration encoderConfig = new CANcoderConfiguration().withMagnetSensor(new MagnetSensorConfigs().withSensorDirection(SensorDirectionValue.CounterClockwise_Positive));
-
+        
+        double canCoder0Offset = isSim
+            ? 0
+            : -141.4;
         double canCoder1Offset = isSim
             ? 0
-            : 0.439;
+            : 167.17;
         double canCoder2Offset = isSim
             ? 0
-            : 34.71;
+            : 177.36;
         double canCoder3Offset = isSim
             ? 0
-            : 47.5;
-        double canCoder4Offset = isSim
-            ? 0
-            : -14.58;
+            : -132.1;
 
         SwerveModuleConfig[] moduleConstants = new SwerveModuleConfig[]{
 
             new SwerveModuleConfig(
                 new SwerveMotorConfig(5, driveMotorConfig), 
                 new SwerveMotorConfig(6, angleMotorConfig), 
-                new CTREEncoder(1, encoderConfig), canCoder3Offset, wheelDiameter * Math.PI),
+                new CTREEncoder(1, encoderConfig), canCoder0Offset, wheelDiameter * Math.PI),
 
             new SwerveModuleConfig(
                 new SwerveMotorConfig(7, driveMotorConfig), 
                 new SwerveMotorConfig(8, angleMotorConfig), 
-                new CTREEncoder(3, encoderConfig), canCoder4Offset, wheelDiameter * Math.PI),
+                new CTREEncoder(3, encoderConfig), canCoder1Offset, wheelDiameter * Math.PI),
 
             new SwerveModuleConfig(
                 new SwerveMotorConfig(3, driveMotorConfig), 
@@ -96,9 +96,8 @@ public class DrivebaseConfig {
             new SwerveModuleConfig(
                 new SwerveMotorConfig(1, driveMotorConfig), 
                 new SwerveMotorConfig(2, angleMotorConfig), 
-                new CTREEncoder(2, encoderConfig), canCoder1Offset, wheelDiameter * Math.PI),
+                new CTREEncoder(2, encoderConfig), canCoder3Offset, wheelDiameter * Math.PI),
         };
-
 
         GenericSwerveModule[] moduleTypes;
         if(isSim){
@@ -137,7 +136,7 @@ public class DrivebaseConfig {
         boolean driveBrakeMode = true;
         boolean angleBrakeMode = false;
         PIDController drivePID = new PIDController(0.1, 0.0, 0.0);
-        PIDController anglePID = new PIDController(0.1, 0.0, 0.0);
+        PIDController anglePID = new PIDController(50, 0.0, 0.0);
         SimpleMotorFeedforward driveFF = new SimpleMotorFeedforward(0.001, 0.0);
         SimpleMotorFeedforward angleFF = new SimpleMotorFeedforward(0.001, 0.0);
         SwerveMotorConfig driveMotorConfig = new SwerveMotorConfig(DCMotor.getKrakenX60(1), driveInversion, driveBrakeMode, driveGearing, driveMOI, driveCurrentLimit, drivePID, driveFF);
@@ -147,37 +146,37 @@ public class DrivebaseConfig {
 
         double canCoder0Offset = isSim
             ? 0
-            : 11.52;
+            : -163.21;
         double canCoder1Offset = isSim
             ? 0
-            : -133.56;
+            : 127.44;
         double canCoder2Offset = isSim
             ? 0
-            : 174.96;
+            : -5.18;
         double canCoder3Offset = isSim
             ? 0
-            : -44.28;
+            : 37.09;
 
         SwerveModuleConfig[] moduleConstants = new SwerveModuleConfig[]{
-            new SwerveModuleConfig(
-                new SwerveMotorConfig(12, driveMotorConfig),
-                new SwerveMotorConfig(3, angleMotorConfig),
-                new CTREEncoder(0, encoderConfig), canCoder0Offset, wheelDiameter * Math.PI),
-
             new SwerveModuleConfig(
                 new SwerveMotorConfig(9, driveMotorConfig), 
                 new SwerveMotorConfig(10, angleMotorConfig), 
                 new CTREEncoder(3, encoderConfig), canCoder3Offset, wheelDiameter * Math.PI),
 
             new SwerveModuleConfig(
-                new SwerveMotorConfig(7, driveMotorConfig), 
-                new SwerveMotorConfig(6, angleMotorConfig), 
-                new CTREEncoder(2, encoderConfig), canCoder2Offset, wheelDiameter * Math.PI),
+                new SwerveMotorConfig(12, driveMotorConfig),
+                new SwerveMotorConfig(3, angleMotorConfig),
+                new CTREEncoder(0, encoderConfig), canCoder0Offset, wheelDiameter * Math.PI),
 
             new SwerveModuleConfig(
                 new SwerveMotorConfig(11, driveMotorConfig), 
                 new SwerveMotorConfig(4, angleMotorConfig), 
                 new CTREEncoder(1, encoderConfig), canCoder1Offset, wheelDiameter * Math.PI),
+
+            new SwerveModuleConfig(
+                new SwerveMotorConfig(7, driveMotorConfig), 
+                new SwerveMotorConfig(6, angleMotorConfig), 
+                new CTREEncoder(2, encoderConfig), canCoder2Offset, wheelDiameter * Math.PI),
         };
 
         GenericSwerveModule[] moduleTypes;

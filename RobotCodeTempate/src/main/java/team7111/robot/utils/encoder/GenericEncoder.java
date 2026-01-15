@@ -8,4 +8,5 @@ public interface GenericEncoder {
 
     public void setPosition(Rotation2d rotation);
     
+    default public void periodic(){}
 }

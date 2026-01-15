@@ -4,13 +4,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Encoder;
 
-public class ThroughBoreEncoder implements GenericEncoder {
+public class RelativeThroughBore implements GenericEncoder {
 
     private Encoder m_encoder;
 
     private Rotation2d zeroOffset = new Rotation2d();
 
-    public ThroughBoreEncoder(int channelA, int channelB, double conversionFactor) {
+    public RelativeThroughBore(int channelA, int channelB, double conversionFactor) {
         m_encoder = new Encoder(channelA, channelB);
         m_encoder.setDistancePerPulse(conversionFactor);
         
