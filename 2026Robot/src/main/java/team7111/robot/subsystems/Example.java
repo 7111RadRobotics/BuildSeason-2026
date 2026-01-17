@@ -61,15 +61,15 @@ public class Example extends SubsystemBase {
     }
 
     private void stow(){
-        System.out.println("Runs code for the stow state");
+        //System.out.println("Runs code for the stow state");
     }
 
     private void deploy(){
-        System.out.println("Runs code for the deploy state");
+        //System.out.println("Runs code for the deploy state");
     }
 
     private void manual(){
-        System.out.println("Runs code for the manual state");
+        //System.out.println("Runs code for the manual state");
     }
 
     public void setState(ExampleState state){

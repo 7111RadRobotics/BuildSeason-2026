@@ -4,6 +4,9 @@ package team7111.robot.subsystems;
 import team7111.robot.subsystems.IntakeSubsystem.IntakeState;
 import team7111.robot.subsystems.ShooterSubsystem.ShooterState;
 import team7111.robot.subsystems.BarrelSubsystem.BarrelState;
+
+import org.ironmaple.simulation.IntakeSimulation.IntakeSide;
+
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -242,7 +245,12 @@ public class SuperStructure extends SubsystemBase{
     }
 
     private void prepareShotVision() {
-        setSuperState(SuperState.shootVision);
+        shooter.setState(ShooterState.prepareShotVision);
+        intake.setState(IntakeState.store);
+        barrel.setState(BarrelState.loaded);
+        if (shootTrigger) {
+            setSuperState(SuperState.shoot);
+        }
     }
 
     private void shoot() {

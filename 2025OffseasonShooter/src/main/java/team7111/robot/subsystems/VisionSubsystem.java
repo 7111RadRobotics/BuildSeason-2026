@@ -108,7 +108,7 @@ public class VisionSubsystem extends SubsystemBase{
         Transform3d distanceToTarget = cameraList[0].getCamToTarget();
 
         if(distanceToTarget == null) {
-            return 0;
+            return shooterMinAngle;
         }
 
         double height = distanceToTarget.getZ() + shooterZOffset + targetHeightOffset;

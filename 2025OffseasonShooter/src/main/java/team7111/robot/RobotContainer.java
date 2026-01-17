@@ -50,7 +50,7 @@ public class RobotContainer {
         paths = new PathSubsystem(null);
         intake = new IntakeSubsystem();
         barrel = new BarrelSubsystem();
-        shooter = new ShooterSubsystem();
+        shooter = new ShooterSubsystem(vision);
         superStructure = new SuperStructure(vision, swerve, paths, intake, barrel, shooter, ControllerConstants.operatorControllerID);
 
         autoChooser = new SendableChooser<>();
@@ -92,7 +92,7 @@ public class RobotContainer {
 
         driverController.start().onTrue(swerve.zeroGyroCommand());
 
-        driverController.a()
+        operatorController.rightBumper()
             .onTrue(superStructure.setControlStateCommand(ControlState.prepareShotVisionTrigger, true))
             .onFalse(superStructure.setControlStateCommand(ControlState.prepareShotVisionTrigger, false));
 
@@ -105,6 +105,7 @@ public class RobotContainer {
         operatorController.leftBumper()
             .onTrue(superStructure.setControlStateCommand(ControlState.prepareShotTrigger, true))
             .onFalse(superStructure.setControlStateCommand(ControlState.prepareShotTrigger, false));
+
 
         operatorController.back().onTrue(superStructure.flipManualCommand());
     }

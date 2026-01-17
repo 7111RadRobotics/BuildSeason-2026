@@ -3,6 +3,7 @@ package team7111.robot.subsystems;
 import java.util.List;
 
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import team7111.robot.subsystems.Autonomous.Autos;
 import team7111.robot.subsystems.Swerve.SwerveState;
@@ -58,7 +59,7 @@ public class SuperStructure extends SubsystemBase {
         this.vision = vision;
         this.example = example;
 
-        this.swerve.setJoysickInputs(() -> driverController.getLeftY(), () -> driverController.getLeftX(), () -> driverController.getRightX());
+        this.swerve.setJoysickInputs(() -> driverController.getLeftY(), () -> -driverController.getLeftX(), () -> driverController.getRightX());
         this.swerve.setDriveFieldRelative(true);
     }
 
@@ -67,6 +68,7 @@ public class SuperStructure extends SubsystemBase {
      */
     public void periodic(){
         manageSuperState(superState);
+        SmartDashboard.putString("SuperState", superState.name());
     }
 
     /**
@@ -120,7 +122,7 @@ public class SuperStructure extends SubsystemBase {
     private boolean autonomousEnter(){
         setSuperState(SuperState.autonomous);
         autoIndex = 0;
-        autoActions = auto.getAutonomous(Autos.shootPreload);
+        autoActions = auto.getAutonomous(Autos.forwardTest);
         autonomous();
         return true;
     }
@@ -186,6 +188,8 @@ public class SuperStructure extends SubsystemBase {
      */
     private boolean autonomousExit(){
         inAuto = false;
+        swerve.setSwerveState(SwerveState.manual);
+        
         //TODO: Code for setting up teleop goes here.
         // this may include setting swerve to manual control, setting the superState to a different state, etc.
         return true;
@@ -208,7 +212,7 @@ public class SuperStructure extends SubsystemBase {
      * @param state the SuperState to set the robot if not in Autonomous mode
      */
     public void setSuperState(SuperState state){
-        if(inAuto)
+        if(!inAuto)
             superState = state;
     }
 

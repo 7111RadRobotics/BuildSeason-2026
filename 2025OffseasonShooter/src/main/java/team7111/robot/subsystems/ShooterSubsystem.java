@@ -16,6 +16,8 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -25,6 +27,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -32,6 +35,9 @@ import team7111.robot.utils.encoder.GenericEncoder;
 import team7111.robot.utils.encoder.ThroughBore;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkBaseConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import yams.mechanisms.config.PivotConfig;
 import yams.mechanisms.positional.Pivot;
@@ -60,9 +66,11 @@ public class ShooterSubsystem extends SubsystemBase {
     };
 
     private ShooterState state = ShooterState.defaultState;
+    
+    private VisionSubsystem vision;
 
     private double visionAngle = 0;
-    private double visionSpeed = 0;
+    private double visionSpeed = 0.5;
     private double previousAngle = 0;
     private double manualPivotSetpoint = 0;
 
@@ -103,33 +111,24 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private Pivot pivot = new Pivot(pivotConfig);
 
-    private SmartMotorControllerConfig flywheelControllerConfig = new SmartMotorControllerConfig(this)
-        .withControlMode(ControlMode.CLOSED_LOOP)
-        .withClosedLoopController(0.1, 0, 0)
-        .withIdleMode(MotorMode.BRAKE)
-        .withMotorInverted(true)
-        .withClosedLoopRampRate(Seconds.of(0.25))
-        .withOpenLoopRampRate(Seconds.of(0.25))
-        .withFeedforward(new SimpleMotorFeedforward(0, 0, 0))
-        .withSimFeedforward(new SimpleMotorFeedforward(0, 0, 0))
-        .withTelemetry("shooterWheelsMotor", TelemetryVerbosity.HIGH)
-        .withStatorCurrentLimit(Amps.of(40))
-        .withGearing(new MechanismGearing(GearBox.fromReductionStages(1,1)))
-        .withFollowers(new Pair<>(flywheelFollowerMotor, true));
+    
 
-    private SmartMotorController flywheelController = new SparkWrapper(flywheelMotor, DCMotor.getNEO(2), flywheelControllerConfig);
-
-    private FlyWheelConfig flywheelConfig = new FlyWheelConfig(flywheelController)
-        .withDiameter(Inches.of(2))
-        .withMass(Pounds.of(1))
-        .withTelemetry("ShooterFlywheels", TelemetryVerbosity.HIGH)
-        .withUpperSoftLimit(RPM.of(1000))
-        .withDiameter(Inches.of(4));
-
-    private FlyWheel shooter = new FlyWheel(flywheelConfig);
-
-    public ShooterSubsystem() {
+    private SparkBaseConfig sparkBaseConfigFollower = new SparkMaxConfig()
+        .follow(10, true)
+        .idleMode(IdleMode.kCoast)
+        .smartCurrentLimit(40);
         
+    private SparkBaseConfig sparkBaseConfigLead = new SparkMaxConfig()
+        .idleMode(IdleMode.kCoast)
+        .inverted(true)
+        .smartCurrentLimit(40);
+        
+    
+
+    public ShooterSubsystem(VisionSubsystem vision) {
+        this.vision = vision;
+        flywheelMotor.configure(sparkBaseConfigLead, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+        flywheelFollowerMotor.configure(sparkBaseConfigFollower, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     }
 
     /**
@@ -142,22 +141,22 @@ public class ShooterSubsystem extends SubsystemBase {
             pivotMotor.setPosition(Degrees.of(-pivotEncoder.getPosition().getDegrees() + 37).in(Rotations));
         }
         pivot.updateTelemetry();
-        shooter.updateTelemetry();
+        visionAngle = vision.shooterAngle();
         manageState();
 
         SmartDashboard.putNumber("throughbore position", -pivotEncoder.getPosition().getDegrees());
         SmartDashboard.putNumber("pivot position", Units.rotationsToDegrees(pivotMotor.getPosition().getValueAsDouble()));
         SmartDashboard.putNumber("Pivot Velocity", pivotMotor.getVelocity().getValueAsDouble() * 60);
         SmartDashboard.putNumber("Pivot Setpoint", currentSetpoint);
+        SmartDashboard.putNumber("Vision Shooter Setpoint", visionAngle);
     }
 
     public void simulationPeriodic(){
         pivot.simIterate();
-        shooter.simIterate();
     }
 
     public void setManualSpeed(double speed){
-        shooter.setSpeed(RPM.of(speed)).execute();
+        flywheelMotor.set(speed);
     }
 
     public void addManualAngle(double angleIncrement){
@@ -215,9 +214,9 @@ public class ShooterSubsystem extends SubsystemBase {
     private void idle() {
 
         flywheelMotor.set(0);
-        pivotMotor.setControl(new PositionDutyCycle(Degrees.of(67).in(Rotations)));
+        pivotMotor.setControl(new PositionDutyCycle(Degrees.of(37).in(Rotations)));
         manualPivotSetpoint = 0;
-        currentSetpoint = 67;
+        currentSetpoint = 37;
     }
 
     private void prepareShot() {
