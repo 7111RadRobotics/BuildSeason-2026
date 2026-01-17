@@ -193,7 +193,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
         // Get desired module states.
         ChassisSpeeds chassisSpeeds = isFieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(forwardBack, leftRight, rotation, getYaw())
+            ? ChassisSpeeds.fromFieldRelativeSpeeds(forwardBack, leftRight, rotation, getYaw().unaryMinus())
             : new ChassisSpeeds(forwardBack, leftRight, rotation);
 
         SwerveModuleState[] states = SwerveConstants.kinematics.toSwerveModuleStates(chassisSpeeds);
