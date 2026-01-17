@@ -41,7 +41,7 @@ public class Vision extends SubsystemBase{
         this
         );*/
     public final Camera orangepi1 = new Camera(
-        "OV9281_1", 
+        "OV9281_3", 
         cameraPositionsToCenter[0], 
         new EstimatedRobotPose(estPose3d, 0.0, null, PoseStrategy.AVERAGE_BEST_TARGETS), 
         this
@@ -55,7 +55,6 @@ public class Vision extends SubsystemBase{
 
     public Camera[] cameraList = new Camera[] {
         orangepi1,
-        orangepi2,
     };
 
     public Vision(){
