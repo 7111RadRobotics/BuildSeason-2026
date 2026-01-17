@@ -1,6 +1,8 @@
 package team7111.robot.utils.motor;
 
 import com.revrobotics.spark.config.SparkBaseConfig;
+import com.revrobotics.PersistMode;
+import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import edu.wpi.first.math.controller.PIDController;
@@ -35,8 +37,7 @@ public class REVMotor implements Motor {
 
         motor = new SparkMax(id, MotorType.kBrushless);
         this.simType = simType;
-
-        motor.configure(sparkMotorConfig, null, null);
+        motor.configure(sparkMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
         Shuffleboard.getTab("DeviceOutputs").addDouble("Motor" + id + " Voltage", () -> motor.getBusVoltage()).withWidget("");
         Shuffleboard.getTab("DeviceOutputs").addDouble("Motor" + id + " Speed", () -> motor.get()).withWidget("");
