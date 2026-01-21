@@ -69,6 +69,8 @@ public class SuperStructure extends SubsystemBase {
     public void periodic(){
         manageSuperState(superState);
         SmartDashboard.putString("SuperState", superState.name());
+        if (driverController.getStartButton())
+            swerve.zeroGyro();
     }
 
     /**

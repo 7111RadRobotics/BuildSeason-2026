@@ -22,16 +22,18 @@ public class DrivebaseConfig {
     public double length;
     public double wheelDiameter;
     public SwerveMotorConfig swerveMotorConfig;
+    public double gyroOffsetDegrees;
 
     public DrivebaseConfig(
         GenericSwerveModule[] moduleTypes, SwerveModuleConfig[] moduleConstants, 
-        double width, double length, double wheelDiameter
+        double width, double length, double wheelDiameter, double gyroOffsetDegrees
     ){
         this.moduleTypes = moduleTypes;
         this.moduleConstants = moduleConstants;
         this.width = width;
         this.length = length;
         this.wheelDiameter = wheelDiameter;
+        this.gyroOffsetDegrees = gyroOffsetDegrees;
     }
 
     /**
@@ -117,7 +119,7 @@ public class DrivebaseConfig {
             };
         }
         
-        return new DrivebaseConfig(moduleTypes, moduleConstants, width, length, wheelDiameter);
+        return new DrivebaseConfig(moduleTypes, moduleConstants, width, length, wheelDiameter, 90);
     }
     public static DrivebaseConfig getStormSurge(boolean isSim){
         double width = Units.inchesToMeters(21.25);
@@ -202,7 +204,7 @@ public class DrivebaseConfig {
             };
         }
         
-        return new DrivebaseConfig(moduleTypes, moduleConstants, width, length, wheelDiameter);
+        return new DrivebaseConfig(moduleTypes, moduleConstants, width, length, wheelDiameter, 0);
     }
 
     public static DrivebaseConfig getBoxChassis(){
@@ -217,6 +219,6 @@ public class DrivebaseConfig {
         double wheelDiameter = 4;
         double moi = 0.001;
 
-        return new DrivebaseConfig(moduleTypes, moduleConstants, width, length, wheelDiameter);
+        return new DrivebaseConfig(moduleTypes, moduleConstants, width, length, wheelDiameter, 0);
     }
 }

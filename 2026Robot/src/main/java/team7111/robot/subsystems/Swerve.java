@@ -1,5 +1,6 @@
 package team7111.robot.subsystems;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -264,9 +265,10 @@ public class Swerve extends SubsystemBase {
         isDriveFieldRelative = isFieldRelative;
     }
 
-    private void zeroGyro() {
+    public void zeroGyro() {
         gyro.setYaw(Rotation2d.kZero);
     }
+    
 
     public void setPath(Path path){
         this.path = path;
