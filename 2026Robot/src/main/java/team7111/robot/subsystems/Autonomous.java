@@ -14,17 +14,18 @@ import team7111.robot.utils.AutoAction;
 
 public class Autonomous extends SubsystemBase {
 
-    private WaypointConstraints translationConstraints = new WaypointConstraints(5, 0, 0.1);
-    private WaypointConstraints rotationConstraints = new WaypointConstraints(720, 0, 5);
+    private WaypointConstraints translationConstraints = new WaypointConstraints(5, 0, 0.001);
+    private WaypointConstraints rotationConstraints = new WaypointConstraints(720, 0, 1);
     
     public enum Autos {
         shootPreload,
         forwardTest,
+        rotateTest,
     }
 
     public enum Paths {
         forward,
-        forwardCW90
+        rotate90
     }
 
     public Autonomous(){
@@ -43,6 +44,9 @@ public class Autonomous extends SubsystemBase {
             case forwardTest:
                 auto.add(new AutoAction(getPath(Paths.forward)));
                 break;
+            case rotateTest:
+                auto.add(new AutoAction(getPath(Paths.rotate90)));
+                break;
         
             default:
 
@@ -58,7 +62,7 @@ public class Autonomous extends SubsystemBase {
             case forward:
                 waypoints.add(new Waypoint(new Pose2d(1, 0, Rotation2d.fromDegrees(0)), translationConstraints, rotationConstraints));
                 break;
-            case forwardCW90:
+            case rotate90:
                 waypoints.add(new Waypoint(new Pose2d(0, 0, Rotation2d.fromDegrees(90)), translationConstraints, rotationConstraints));
                 break;
         }

@@ -2,6 +2,7 @@ package team7111.robot.subsystems;
 
 import java.util.List;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -69,8 +70,10 @@ public class SuperStructure extends SubsystemBase {
     public void periodic(){
         manageSuperState(superState);
         SmartDashboard.putString("SuperState", superState.name());
-        if (driverController.getStartButton())
+        if (driverController.getStartButton()) {
             swerve.zeroGyro();
+            swerve.resetOdometry(new Pose2d(0, 0 , swerve.getYaw()));
+        }
     }
 
     /**
@@ -124,7 +127,7 @@ public class SuperStructure extends SubsystemBase {
     private boolean autonomousEnter(){
         setSuperState(SuperState.autonomous);
         autoIndex = 0;
-        autoActions = auto.getAutonomous(Autos.forwardTest);
+        autoActions = auto.getAutonomous(Autos.rotateTest);
         autonomous();
         return true;
     }
@@ -142,6 +145,10 @@ public class SuperStructure extends SubsystemBase {
         boolean isActionFinished = true;
         AutoAction autoAction;
         autoAction = autoActions.get(autoIndex);
+
+        SmartDashboard.putNumber("AutoAction", autoActions.size() - 1);
+        SmartDashboard.putNumber("autoIndex", autoIndex);
+        SmartDashboard.putBoolean("IsPathFinished", isActionFinished);
 
         if (autoAction.isPath()){
             SwerveState swerveState = swerve.getSwerveState();
@@ -167,7 +174,16 @@ public class SuperStructure extends SubsystemBase {
         }
 
         if (isActionFinished) {
-            autoIndex += 1;
+            if (autoActions.size() - 1 > autoIndex) {
+                autoIndex += 1;
+                
+            }
+            else {
+                inAuto = false;
+                setSuperState(SuperState.autonomousExit);
+            }
+
+            
         }
         /* TODO: Write code that will run a list of AutoActions received from Autonomous.java
          * It needs to check whether it is a Path or SuperState and whether there is
@@ -214,6 +230,7 @@ public class SuperStructure extends SubsystemBase {
      * @param state the SuperState to set the robot if not in Autonomous mode
      */
     public void setSuperState(SuperState state){
+    
         if(!inAuto)
             superState = state;
     }

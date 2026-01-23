@@ -84,8 +84,8 @@ public class Swerve extends SubsystemBase {
         zeroGyro();
 
         pathMaster = new PathMaster(this::getPose, () -> getYaw());
-        pathMaster.setTranslationPID(10.0, 0.0, 0.0);
-        pathMaster.setRotationPID(4.0, 0, 0);
+        pathMaster.setTranslationPID(2.30, 0.2, 0.075);
+        pathMaster.setRotationPID(0.031, 0.001, 0.0);
         pathMaster.setInversions(false, false, true, false);
 
         swerveOdometry = new SwerveDriveOdometry(SwerveConstants.kinematics, getYaw(), getPositions());
@@ -147,6 +147,7 @@ public class Swerve extends SubsystemBase {
                 }
                 if(path.isPathFinished()){
                     setSwerveState(SwerveState.stationary);
+                    
                     break;
                 }
                 pathMaster.periodic(path);
@@ -267,7 +268,9 @@ public class Swerve extends SubsystemBase {
 
     public void zeroGyro() {
         gyro.setYaw(Rotation2d.kZero);
+        
     }
+
     
 
     public void setPath(Path path){
