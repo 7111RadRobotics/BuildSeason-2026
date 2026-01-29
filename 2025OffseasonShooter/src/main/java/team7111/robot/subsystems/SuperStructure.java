@@ -3,14 +3,23 @@ package team7111.robot.subsystems;
 
 import team7111.robot.subsystems.IntakeSubsystem.IntakeState;
 import team7111.robot.subsystems.ShooterSubsystem.ShooterState;
+import team7111.lib.pathfinding.Path;
+import team7111.lib.pathfinding.PathMaster;
+import team7111.lib.pathfinding.Waypoint;
+import team7111.lib.pathfinding.WaypointConstraints;
 import team7111.robot.subsystems.BarrelSubsystem.BarrelState;
 
 import org.ironmaple.simulation.IntakeSimulation.IntakeSide;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import team7111.lib.pathfinding.Waypoint;
+import team7111.lib.pathfinding.WaypointConstraints;
 
 public class SuperStructure extends SubsystemBase{
 
@@ -44,6 +53,7 @@ public class SuperStructure extends SubsystemBase{
     private BarrelSubsystem barrel;
     private SwerveSubsystem swerve;
     private PathSubsystem paths;
+    
 
     private boolean intakeTrigger = false;
     private boolean ejectTrigger = false;
@@ -59,6 +69,13 @@ public class SuperStructure extends SubsystemBase{
     private double secureTimer = 0;
 
     private XboxController operatorController;
+
+    private Path pathLib;
+    private Path path;
+
+    Waypoint[] waypoints = new Waypoint[]{
+        new Waypoint(new Pose2d(4, 4, Rotation2d.fromDegrees(180.0)), new WaypointConstraints(10, 0, 0.25), new WaypointConstraints(360, 0, 10)),
+    };
 
     public SuperStructure(
         VisionSubsystem vision, SwerveSubsystem swerve, PathSubsystem paths, 
@@ -81,6 +98,14 @@ public class SuperStructure extends SubsystemBase{
         SmartDashboard.putBoolean("ManualToggle", manualToggle);
         if (manualToggle)
             setSuperState(SuperState.manual);
+        if (pathLib == null) {
+            pathLib = new Path(waypoints);
+            path = new Path(pathLib.getWaypoint());
+            path.avoidFieldElements(true, null, path, swerve.getPose());
+            System.out.println("pathLib: " + pathLib);
+        }
+        System.out.println(path);
+        swerve.setPath(path);
     }
 
     private void manageSuperState() {
@@ -276,7 +301,6 @@ public class SuperStructure extends SubsystemBase{
     }
 
     private void autonomous(){
-        
     }
 
     private void manual() {

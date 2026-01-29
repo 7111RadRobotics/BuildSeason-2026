@@ -66,18 +66,6 @@ public class RobotContainer {
 
         autoChooser = new SendableChooser<>();
 
-        Waypoint[] waypoints = new Waypoint[]{
-            new Waypoint(new Pose2d(0, 0, Rotation2d.fromDegrees(180.0)), new WaypointConstraints(10, 0, 0.25), new WaypointConstraints(360, 0, 10)),
-        };
-
-        pathLib = new Path(waypoints);
-
-        Path path = new Path(pathLib.getWaypoint());
-
-        autoChooser.addOption("Path_TEST", swerve.setPathCommand(path).andThen(swerve.setSwerveStateCommand(SwerveState.initializePath)));
-
-        SmartDashboard.putData("autoChooser", autoChooser);
-
         // Configure button bindings
         configureButtonBindings();
     }

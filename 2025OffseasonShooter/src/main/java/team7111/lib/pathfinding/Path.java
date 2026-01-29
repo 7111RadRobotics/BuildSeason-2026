@@ -60,10 +60,10 @@ public class Path {
     private Translation2d initialPosition = null;
     private Optional<Map.Entry<Translation2d, Double>> minScore = Optional.empty();
     private Translation2d endPath = null;
-    private Double endPathX = null;
-    private Double endPathY = null;
+    private Double endPathX = 7.2;
+    private Double endPathY = 5.3;
     private Waypoint[] nodeWaypoints;
-    private Waypoint tempWaypoint[] = new Waypoint[]{new Waypoint(new Pose2d(0, 0, Rotation2d.fromDegrees(180.0)), new WaypointConstraints(10, 0, 0.25), new WaypointConstraints(360, 0, 10))};
+    public Waypoint tempWaypoint[] = new Waypoint[]{new Waypoint(new Pose2d(4, 4, Rotation2d.fromDegrees(180.0)), new WaypointConstraints(10, 0, 0.25), new WaypointConstraints(360, 0, 10))};
 
     /**
      * Constructs a path from several waypoints. Uses pathMaster class to define parameters.
@@ -265,13 +265,13 @@ public class Path {
     /**
      * Routs around any objects in the path
      */
-    public void avoidFieldElements(boolean avoidFieldElements, FieldElement[] fieldElements, Path path, Supplier<Pose2d> suppliedPose){
-        initialPosition = suppliedPose.get().getTranslation();
+    public void avoidFieldElements(boolean avoidFieldElements, FieldElement[] fieldElements, Path path, Pose2d suppliedPose){
+        initialPosition = suppliedPose.getTranslation();
         if (!avoidFieldElements) {
             return;
         } else {
                 waypointPos = path.getCurrentWaypoint().getPose().getTranslation();
-                currentPos = suppliedPose.get().getTranslation();
+                currentPos = suppliedPose.getTranslation();
 
                 double currentX = (double) Math.round(currentPos.getX() / gridSize);
                 double currentY = (double) Math.round(currentPos.getY() / gridSize);
@@ -362,8 +362,10 @@ public class Path {
 
     public Waypoint[] getWaypoint() {
         if (nodeWaypoints != null) {
+            System.out.println("nodeWaypoints: " + nodeWaypoints);
             return nodeWaypoints;
         } else {
+            System.out.println("tempWaypoints: " + tempWaypoint);
             return tempWaypoint;
         }
     }

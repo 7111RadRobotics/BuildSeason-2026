@@ -134,7 +134,7 @@ public class PathMaster {
         path.setPoseSupplier(suppliedPose);
         path.setSpeedSuppliers(()-> xCalculation, ()-> yCalculation, ()-> rotCalculation);
         path.flipPath(shouldFlipPath, isPathMirrored);
-        path.avoidFieldElements(avoidFieldElements, fieldElements, path, suppliedPose);
+        path.avoidFieldElements(avoidFieldElements, fieldElements, path, suppliedPose.get());
         path.initialize();
     }
 

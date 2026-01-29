@@ -51,7 +51,7 @@ public class SwerveSubsystem extends SubsystemBase {
     private SwerveState currentSwerveState = SwerveState.manual;
 
     Waypoint[] waypoints = new Waypoint[]{
-        new Waypoint(new Pose2d(7.217, 4.199, Rotation2d.fromDegrees(180.0)), new WaypointConstraints(10, 0, 0.25), new WaypointConstraints(360, 0, 10)),
+        new Waypoint(new Pose2d(0, 0, Rotation2d.fromDegrees(180.0)), new WaypointConstraints(10, 0, 0.25), new WaypointConstraints(360, 0, 10)),
     };
 
     Path path = new Path(waypoints);
