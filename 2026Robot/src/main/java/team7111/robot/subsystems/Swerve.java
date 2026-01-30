@@ -85,7 +85,7 @@ public class Swerve extends SubsystemBase {
 
         pathMaster = new PathMaster(this::getPose, () -> getYaw());
         pathMaster.setTranslationPID(2.30, 0.2, 0.075);
-        pathMaster.setRotationPID(0.031, 0.0023, 0.0);
+        pathMaster.setRotationPID(0.06, 0.0, 0.0);
         pathMaster.setInversions(false, false, true, false);
 
         swerveOdometry = new SwerveDriveOdometry(SwerveConstants.kinematics, getYaw(), getPositions());
@@ -163,6 +163,7 @@ public class Swerve extends SubsystemBase {
                 break;
             case stationary:
                 manual(0, 0, 0, false, false);
+                break;
             case snapAngle:
                 manual(joystickXTranslation.getAsDouble(), joystickYTranslation.getAsDouble(), snapAnglePID.calculate(snapAngleSetpoint), isDriveFieldRelative, false);
                 break;

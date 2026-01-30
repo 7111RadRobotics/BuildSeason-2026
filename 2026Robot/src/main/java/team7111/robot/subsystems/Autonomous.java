@@ -5,6 +5,8 @@ import java.util.List;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import team7111.lib.pathfinding.Path;
 import team7111.lib.pathfinding.Waypoint;
@@ -23,32 +25,30 @@ public class Autonomous extends SubsystemBase {
     private WaypointConstraints slowTransConstraints = new WaypointConstraints(2, 0, 0.002);
     private WaypointConstraints slowRotConstraints = new WaypointConstraints(180, 0, 0.3);
 
+    private SendableChooser<Autos> autoChooser = new SendableChooser<>();
+
     public enum Autos {
         shootPreload,
         forwardTest,
         rotateTest,
+        multiPoint,
     }
 
     public enum Paths {
         forward,
-        rotate90
+        rotate90,
+        forward2,
     }
 
     public Autonomous(){
-
+        for (Autos auto : Autos.values()) {
+            autoChooser.addOption(auto.name(), auto);
+        }
+        
+        Shuffleboard.getTab("Autonomous").add("AutoChooser", autoChooser);
     }
 
-    public Waypoint fastPoint(double x, double y, double rotDegrees) {
-       return new Waypoint(new Pose2d(x, y, Rotation2d.fromDegrees(rotDegrees)), fastTransConstraints, fastRotConstraints);
-    }
-
-    public Waypoint balancedPoint(double x, double y, double rotDegrees) {
-       return new Waypoint(new Pose2d(x, y, Rotation2d.fromDegrees(rotDegrees)), balancedTransConstraints, balancedRotConstraints);
-    }
-
-    public Waypoint slowPoint(double x, double y, double rotDegrees) {
-       return new Waypoint(new Pose2d(x, y, Rotation2d.fromDegrees(rotDegrees)), slowTransConstraints, slowRotConstraints);
-    }
+    
 
     public void periodic(){}
 
@@ -65,7 +65,10 @@ public class Autonomous extends SubsystemBase {
             case rotateTest:
                 auto.add(new AutoAction(getPath(Paths.rotate90)));
                 break;
-        
+            case multiPoint:
+                auto.add(new AutoAction(getPath(Paths.forward)));
+                auto.add(new AutoAction(getPath(Paths.forward2)));
+                break;
             default:
 
                 break;
@@ -78,12 +81,31 @@ public class Autonomous extends SubsystemBase {
         // define Path object for each Paths enum using a switch statement
         switch (path) {
             case forward:
-                waypoints.add(new Waypoint(new Pose2d(1, 0, Rotation2d.fromDegrees(0)), balancedTransConstraints, balancedRotConstraints));
+                waypoints.add(balancedPoint(1, 0, 0));
                 break;
             case rotate90:
-                waypoints.add(new Waypoint(new Pose2d(0, 0, Rotation2d.fromDegrees(90)), balancedTransConstraints, balancedRotConstraints));
+                waypoints.add(balancedPoint(0, 0, 90));
+                break;
+            case forward2:
+                waypoints.add(balancedPoint(2, 0, 90));
                 break;
         }
         return new Path(waypoints);
+    }
+
+    public Waypoint fastPoint(double x, double y, double rotDegrees) {
+       return new Waypoint(new Pose2d(x, y, Rotation2d.fromDegrees(rotDegrees)), fastTransConstraints, fastRotConstraints);
+    }
+
+    public Waypoint balancedPoint(double x, double y, double rotDegrees) {
+       return new Waypoint(new Pose2d(x, y, Rotation2d.fromDegrees(rotDegrees)), balancedTransConstraints, balancedRotConstraints);
+    }
+
+    public Waypoint slowPoint(double x, double y, double rotDegrees) {
+       return new Waypoint(new Pose2d(x, y, Rotation2d.fromDegrees(rotDegrees)), slowTransConstraints, slowRotConstraints);
+    }
+
+    public Autos getSelectedAuto(){
+        return autoChooser.getSelected();
     }
 }

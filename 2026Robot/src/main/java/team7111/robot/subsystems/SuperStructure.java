@@ -142,6 +142,7 @@ public class SuperStructure extends SubsystemBase {
     }
 
     private boolean example2(){
+        System.out.println("example2");
         return true;
     }
 
@@ -154,7 +155,7 @@ public class SuperStructure extends SubsystemBase {
     private boolean autonomousEnter(){
         setSuperState(SuperState.autonomous);
         autoIndex = 0;
-        autoActions = auto.getAutonomous(Autos.rotateTest);
+        autoActions = auto.getAutonomous(auto.getSelectedAuto());
         autonomous();
         return true;
     }
@@ -212,15 +213,6 @@ public class SuperStructure extends SubsystemBase {
 
             
         }
-        /* TODO: Write code that will run a list of AutoActions received from Autonomous.java
-         * It needs to check whether it is a Path or SuperState and whether there is
-         * an alternate condition (replaces the default), additional condition (AND), or optional condition (OR).
-         * If the AutoAction is a state, it will call manageState(autoAction.getSuperState).
-         * If the AutoAction is a Path, it will set the path in swerve to its path and set the swerve state to initializePath.
-         * The autoIndex should be increased when the current AutoAction's condition is true (This includes taking into account alternate, additional, and optional conditions).
-         * The default condition for a SuperState is the returned boolean from it's state method.
-         * The default condition for a Path is its isFinished() method.
-         */
 
         return true;
     }
@@ -234,6 +226,7 @@ public class SuperStructure extends SubsystemBase {
     private boolean autonomousExit(){
         inAuto = false;
         swerve.setSwerveState(SwerveState.manual);
+        setSuperState(SuperState.example1);
         
         //TODO: Code for setting up teleop goes here.
         // this may include setting swerve to manual control, setting the superState to a different state, etc.
@@ -273,5 +266,9 @@ public class SuperStructure extends SubsystemBase {
      */
     public SuperState getSuperState(){
         return superState;
+    }
+
+    public void disableAuto(){
+        superState = SuperState.autonomousExit;
     }
 }

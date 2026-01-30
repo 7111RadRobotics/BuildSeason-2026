@@ -73,12 +73,13 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousExit(){
-        superStructure.setSuperState(SuperState.autonomousExit);
+        superStructure.disableAuto();
     }
 
     /** This function is called once when teleop is enabled. */
     @Override
     public void teleopInit() {
+        
     }
 
     /** This function is called periodically during operator control. */
