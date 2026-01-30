@@ -7,18 +7,31 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Aimbot extends SubsystemBase{
     /** Given as backup for if camera detects no valid apriltag */
     private Supplier<Pose2d> robotPose;
     
-    /** Possibly unused, determine with simon if we need to aim at specific point, or need apriltag detection*/
+    //CONTROLLER
+    /** Controls the manual firing, and adds angle if the stick is moved */
+    private XboxController operatorController = null;
+    /** Multiplied against the angle stick (left) */
+    private double angleSensitivity = 0.25;
+    /** Multiplied against the speed stick (Right) */
+    private double speedSensitivity = 0.1;
+    /** How far the stick can override the angle in non manual shots (degrees) */
+    private double angleOverrideRange = 10;
+    /** How far the operator can override the speed in non manual shots (rpm) */
+    private double speedOverrideRange = 500;
+
+
+    /** For apriltag detection and targetting */
     private Vision vision;
 
     /** Position of target to aim at. */
     private Pose3d targetPose;
-    private Translation2d parabTargetOffset;
 
     /** Only used with camera, distance to the center of the target from the apriltag */
     private final double camToTargetXOffset = 1.05918/2;
@@ -30,11 +43,19 @@ public class Aimbot extends SubsystemBase{
     /** Auto calculated based on shooter diameter, in inches */
     private final double wheelCircumference = shooterDiameter * Math.PI;
 
+    //ANGLE CONSTRAINTS
     /** Minimum shooter angle in degrees, from horizontal */
     private final double minShooterAngle = 0.0;
     /** Maximum shooter angle in degrees, from horizontal */
     private final double maxShooterAngle = 0.0;
+    
+    //SPEED CONSTRAINTS
+    /** Maximum rotations per minute allowable on the shooter (in RPM) */
+    private final double maxShooterSpeed = 2000;
+    /** Minimum rotations per minute allowable on the shooter (Overrided in off state, in RPM) */
+    private final double minShooterSpeed = 0;
 
+    //POSITION OFFSETS
     /** Offset from ground the ball leaves the shooter, in meters */
     private final double shooterHeightOffset = 0.75;
     /** Offset from the center of the robot to the shooter, in meters */
@@ -52,6 +73,7 @@ public class Aimbot extends SubsystemBase{
      *  <p> If disabled, sets angle to minimum shooter angle and speed to 0 */
     private boolean isEnabled = false;
 
+    /** Defines if we want to use vision */
     private boolean isUsingVision = false;
 
     /** Determines algorithm for aiming the shooter. <p>
@@ -66,6 +88,7 @@ public class Aimbot extends SubsystemBase{
         Transport,
         Manual,
     }
+
     /** Current type of shot to calculate */
     private shotType currentShotType = shotType.Manual;
 
@@ -74,11 +97,11 @@ public class Aimbot extends SubsystemBase{
     /** Calculated speed the wheel needs to spin at, in rotations per minute */
     private double calculatedSpeed = 0.0; 
 
-    public Aimbot(Vision vision, Supplier<Pose2d> robotPose, Pose3d targetPose, Translation2d parabTargetOffset) {
+    public Aimbot(Vision vision, Supplier<Pose2d> robotPose, Pose3d targetPose, XboxController operatorController) {
         this.vision = vision;
         this.robotPose = robotPose;
         this.targetPose = targetPose;
-        this.parabTargetOffset = parabTargetOffset;
+        this.operatorController = operatorController;
     }
 
     /** Sets the angle offsets for the camera and the shooter, measured from horizontal */
@@ -101,9 +124,24 @@ public class Aimbot extends SubsystemBase{
         this.isEnabled = isEnabled;
     }
 
+    /** Toggles the enable for calculations */
+    public void toggle() {
+        this.isEnabled = !isEnabled;
+    }
+
     /** If set to true, vision will be used to find apriltag and target. If false, uses robot position */
     public void setVisionUsage(boolean isUsingVision) {
         this.isUsingVision = isUsingVision;
+    }
+
+    /** Toggles the vision usage */
+    public void toggleVision() {
+        isUsingVision = !isUsingVision;
+    }
+
+    /** Sets the current shot type to calculate */
+    public void setShotType(shotType shotType) {
+        currentShotType = shotType;
     }
 
     /** Calculates angle and speed for the shooter. If calculations are disabled, acts as a transport mode.*/
@@ -199,7 +237,8 @@ public class Aimbot extends SubsystemBase{
 
     /** Sets to fire as flat of a line as possible. Operator controls do NOT determine raw angle, but distance they want to fire */
     private void manual() {
-
+        calculatedAngle = calculatedAngle + operatorController.getLeftY() * angleSensitivity;
+        calculatedSpeed = calculatedSpeed + operatorController.getRightY() * speedSensitivity;
     }
 
     /** Offsets the angle to use the proper angle reference */
@@ -208,6 +247,9 @@ public class Aimbot extends SubsystemBase{
             calculatedAngle = calculatedAngle + cameraAngleOffset;
         }
         calculatedAngle = calculatedAngle + shooterAngleOffset;
+
+        calculatedAngle = calculatedAngle + operatorController.getLeftY() * angleOverrideRange / 2;
+        calculatedSpeed = calculatedSpeed + operatorController.getRightY() * speedOverrideRange / 2;
     }
 
     /** Ensures the angles are within the min and max physical angles on the shooter */
@@ -216,6 +258,12 @@ public class Aimbot extends SubsystemBase{
             calculatedAngle = minShooterAngle;
         } else if(calculatedAngle > maxShooterAngle) {
             calculatedAngle = maxShooterAngle;
+        }
+
+        if(calculatedSpeed > maxShooterSpeed) {
+            calculatedSpeed = maxShooterSpeed;
+        } else if(calculatedSpeed < minShooterSpeed) {
+            calculatedSpeed = minShooterSpeed;
         }
     }
 
@@ -231,13 +279,17 @@ public class Aimbot extends SubsystemBase{
             return calculatedPos;
         } else {
             Transform3d calculatedPos = new Transform3d(targetPose.getX() - robotPose.get().getX(),
-            targetPose.getY() - robotPose.get().getY(),
-            targetPose.getZ(), null);
+                targetPose.getY() - robotPose.get().getY(),
+                targetPose.getZ(), null);
             
-            Transform3d returnedTrans = new Transform3d(Math.sqrt(Math.pow(calculatedPos.getX(), 2) + Math.pow(calculatedPos.getY(), 2)), 
-                0.0, targetPose.getZ() - shooterHeightOffset, null);
+            double distance = Math.sqrt(Math.pow(calculatedPos.getX(), 2) + Math.pow(calculatedPos.getY(), 2));
+            Transform3d returnedTrans = new Transform3d(
+                distance, 
+                0.0, 
+                targetPose.getZ() - shooterHeightOffset, null);
 
             return returnedTrans;
         }
     }
 }
+//floccinaucinihilipilification

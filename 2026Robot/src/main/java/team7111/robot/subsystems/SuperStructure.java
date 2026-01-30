@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import team7111.robot.subsystems.Aimbot.shotType;
 import team7111.robot.subsystems.Autonomous.Autos;
 import team7111.robot.subsystems.Swerve.SwerveState;
 import team7111.robot.utils.AutoAction;
@@ -29,6 +30,7 @@ public class SuperStructure extends SubsystemBase {
         autonomousEnter,
         autonomous,
         autonomousExit,
+        toggleTargeting,
     }
 
     //Subsystem Variables
@@ -72,10 +74,31 @@ public class SuperStructure extends SubsystemBase {
     public void periodic(){
         manageSuperState(superState);
         SmartDashboard.putString("SuperState", superState.name());
+        // Driver controller commands
         if (driverController.getStartButton()) {
             swerve.zeroGyro();
             swerve.resetOdometry(new Pose2d(0, 0 , swerve.getYaw()));
         }
+
+        // Operator controller commands
+        if(operatorController.getStartButtonPressed()) {
+            targeting.toggle();
+        }
+        if(operatorController.getAButtonPressed()) {
+            targeting.setShotType(shotType.Direct);
+        }
+        if(operatorController.getBButtonPressed()) {
+            targeting.setShotType(shotType.Parabolic);
+        }
+        if(operatorController.getYButtonPressed()) {
+            targeting.setShotType(shotType.Manual);
+        }
+        if(operatorController.getBackButtonPressed()) {
+            targeting.toggleVision();
+        }
+
+        SmartDashboard.putNumber("ShooterAngle", targeting.getCalculatedAngle());
+        SmartDashboard.putNumber("ShooterSpeed", targeting.getCalculatedSpeed());
     }
 
     /**
@@ -101,6 +124,8 @@ public class SuperStructure extends SubsystemBase {
                 return autonomousEnter();
             case autonomousExit:
                 return autonomousExit();
+            case toggleTargeting:
+                return toggleTargeting();
             default:
                 return defaultState(state);
         }
@@ -212,6 +237,11 @@ public class SuperStructure extends SubsystemBase {
         
         //TODO: Code for setting up teleop goes here.
         // this may include setting swerve to manual control, setting the superState to a different state, etc.
+        return true;
+    }
+
+    private boolean toggleTargeting() {
+       targeting.toggle(); 
         return true;
     }
 
