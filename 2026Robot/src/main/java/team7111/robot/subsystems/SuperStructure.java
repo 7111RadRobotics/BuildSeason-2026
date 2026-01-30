@@ -72,6 +72,7 @@ public class SuperStructure extends SubsystemBase {
      * This method runs every iteration (every 20ms). Actions like state management and stateless logic are run here.
      */
     public void periodic(){
+        long startTime = System.nanoTime();
         manageSuperState(superState);
         SmartDashboard.putString("SuperState", superState.name());
         // Driver controller commands
@@ -99,6 +100,11 @@ public class SuperStructure extends SubsystemBase {
 
         SmartDashboard.putNumber("ShooterAngle", targeting.getCalculatedAngle());
         SmartDashboard.putNumber("ShooterSpeed", targeting.getCalculatedSpeed());
+
+        long endTime = System.nanoTime();
+
+        //Timing measurement, in milliseconds
+        SmartDashboard.putNumber("Time for superstructure periodic", (double) ((endTime - startTime) / 1000000.0));
     }
 
     /**
