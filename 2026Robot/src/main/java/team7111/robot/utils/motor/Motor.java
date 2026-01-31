@@ -12,23 +12,37 @@ import team7111.robot.utils.encoder.GenericEncoder;
  */
 public interface Motor {
 
+    public enum MechanismType {
+        flywheel,
+        arm,
+        elevator,
+    }
+
     /**
      * Sets motor speed
      * @param speed -Type "double", range is -1 to 1. -1 is full speed back, 1 is full speed forward.
      */
-    public void setSpeed(double speed);
+    public void setDutyCycle(double speed);
 
     /**
      * @return Type "double", returns the speed of the motor. Ranges between -1 and 1. -1 is full speed back, 1 is full speed forward.
      * @see #
      */
-    public double getSpeed();
+    public double getDutyCycle();
+
+    /**
+     * 
+     * @return
+     */
+    public void setVelocity(double rpm);
+
+    public double getVelocity();
 
     /**
      * Sets the motor position, overwriting the old variable.
      * @param position -Type "double", position for the motor in digrees.
      */
-    public void setPosition(double position);
+    public void setPositionReadout(double position);
     
     /**
      * Gets the current position of the motor

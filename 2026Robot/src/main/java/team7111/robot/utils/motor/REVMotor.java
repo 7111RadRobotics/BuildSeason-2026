@@ -1,9 +1,12 @@
 package team7111.robot.utils.motor;
 
 import com.revrobotics.spark.config.SparkBaseConfig;
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -19,25 +22,24 @@ public class REVMotor implements Motor {
     private double gearRatio = 1;
     private SimpleMotorFeedforward feedForward;
     private double setPoint;
-    private Motor simType;
     private double currentSetpoint; 
-    private double positiveSpeedLimit = 1;
-    private double negativeSpeedLimit = -1;
+    private double positiveSpeedLimit = 20;
+    private double negativeSpeedLimit = -20;
     
     public REVMotor (int id) {
         motor = new SparkMax(id, MotorType.kBrushless);
 
     }
     
-    public REVMotor(int id, GenericEncoder encoder, double gearRatio, PIDController pid, SimpleMotorFeedforward feedforward, Motor simType, SparkBaseConfig sparkMotorConfig){
+    public REVMotor(int id, GenericEncoder encoder, MotorConfig config){
         this.encoder = encoder;
-        this.gearRatio = gearRatio;
-        this.pid = pid;
-        this.feedForward = feedforward;
+        this.gearRatio = config.gearRatio;
+        this.pid = config.pid;
+        this.feedForward = config.simpleFF;
 
         motor = new SparkMax(id, MotorType.kBrushless);
-        this.simType = simType;
-        motor.configure(sparkMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        config.sparkConfig.closedLoop.pid(pid.getP(), pid.getI(), pid.getD());
+        motor.configure(config.sparkConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
         Shuffleboard.getTab("DeviceOutputs").addDouble("Motor" + id + " Voltage", () -> motor.getBusVoltage()).withWidget("");
         Shuffleboard.getTab("DeviceOutputs").addDouble("Motor" + id + " Speed", () -> motor.get()).withWidget("");
@@ -45,15 +47,23 @@ public class REVMotor implements Motor {
     }
 
 
-    public void setSpeed(double speed){
+    public void setDutyCycle(double speed){
         motor.set(speed);
     }
 
-    public double getSpeed(){
+    public double getDutyCycle(){
         return motor.get();
     }
+
+    public void setVelocity(double rpm){
+        motor.getClosedLoopController().setSetpoint(rpm * gearRatio, ControlType.kVelocity);
+    }
+
+    public double getVelocity(){
+        return motor.getEncoder().getVelocity() / gearRatio;
+    }
     
-    public void setPosition(double position){
+    public void setPositionReadout(double position){
         if(encoder != null){
             encoder.setPosition(Rotation2d.fromDegrees(position));
         } else {
