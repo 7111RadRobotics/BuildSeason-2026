@@ -35,14 +35,14 @@ public class Autonomous extends SubsystemBase {
     private StructArrayPublisher<Pose2d> hubPublisher = 
             NetworkTableInstance.getDefault().getStructArrayTopic("Hub Presets", Pose2d.struct).publish();
 
-    private WaypointConstraints fastTransConstraints = new WaypointConstraints(8, 0, 1);
-    private WaypointConstraints fastRotConstraints = new WaypointConstraints(720, 0, 90);
+    private WaypointConstraints fastTransConstraints = new WaypointConstraints(8, 0, 6, 1);
+    private WaypointConstraints fastRotConstraints = new WaypointConstraints(720, 0, 180, 90);
     
-    private WaypointConstraints balancedTransConstraints = new WaypointConstraints(6, 2, 0.4);
-    private WaypointConstraints balancedRotConstraints = new WaypointConstraints(270, 0, 5);
+    private WaypointConstraints balancedTransConstraints = new WaypointConstraints(6, 2, 4, 0.4);
+    private WaypointConstraints balancedRotConstraints = new WaypointConstraints(270, 0, 90, 5);
 
-    private WaypointConstraints slowTransConstraints = new WaypointConstraints(1, 0, 0.2);
-    private WaypointConstraints slowRotConstraints = new WaypointConstraints(180, 0, 0.8);
+    private WaypointConstraints slowTransConstraints = new WaypointConstraints(1, 0, 2, 0.2);
+    private WaypointConstraints slowRotConstraints = new WaypointConstraints(180, 0, 45, 0.8);
 
     private SendableChooser<Autos> autoChooser = new SendableChooser<>();
     private SuperStructure superStructure;

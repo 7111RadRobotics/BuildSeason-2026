@@ -8,6 +8,7 @@ public class WaypointConstraints
 {
     private double maxSpeed;
     private double minSpeed;
+    private double maxAccel;
     /**In meters*/
     private double tolerance;
 
@@ -19,15 +20,16 @@ public class WaypointConstraints
      * @param minSpeed -Minimum speed in units per second the robot must be going during both travel and end of waypoint.
      * @param tolerance -Allowed distance from the waypoint the robot must be to be considered 
      */
-    public WaypointConstraints(double maxSpeed, double minSpeed, double tolerance)
+    public WaypointConstraints(double maxSpeed, double minSpeed, double maxAccel, double tolerance)
     {
         this.maxSpeed = maxSpeed;
         this.minSpeed = minSpeed;
+        this.maxAccel = maxAccel;
         this.tolerance = tolerance;
     }
 
     /**
-     * Returns the tolerance the robot needs to be to the waypoint in units. <p>
+     * @return the tolerance the robot needs to be to the waypoint in units. <p>
      * Translation units: Meters. <p>
      * Rotation units: Degrees.
      */
@@ -38,7 +40,7 @@ public class WaypointConstraints
 
 
     /**
-     * Returns maximum allowed speed in units per second.
+     * @return maximum allowed speed in units per second.
      */
     public double getMaxSpeed()
     {
@@ -46,11 +48,19 @@ public class WaypointConstraints
     }
 
     /**
-     * Returns minimum allowed speed in units per second.
+     * @return minimum allowed speed in units per second.
      */
     public double getMinSpeed()
     {
         return this.minSpeed;
     }
+    /**
+     * @return maximum allowed acceleration in units per second
+     */
+    public double getMaxAccel()
+    {
+        return this.maxAccel;
+    }
+  
 
 };

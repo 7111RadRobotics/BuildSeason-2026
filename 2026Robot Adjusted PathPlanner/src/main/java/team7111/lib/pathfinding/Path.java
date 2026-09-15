@@ -201,9 +201,52 @@ public class Path {
         }
 
 
+
         
         
     }
+
+    public ChassisSpeeds getChassisSpeeds(){
+        double dt = 1.0/50.0;
+
+        double desCompSpeed = Math.hypot(xTransSpeed.getAsDouble(), yTransSpeed.getAsDouble());
+        double xSpeed = xTransSpeed.getAsDouble();
+        double ySpeed = yTransSpeed.getAsDouble();
+        WaypointConstraints constraints = getCurrentWaypoint().getTranslationConstraints();
+
+        if (desCompSpeed > constraints.getMaxSpeed()) {
+            xSpeed = xSpeed * constraints.getMaxSpeed() / desCompSpeed;
+            ySpeed = ySpeed * constraints.getMaxSpeed() / desCompSpeed;
+            }  
+        
+        if (desCompSpeed < constraints.getMinSpeed()) {
+            xSpeed = xSpeed * constraints.getMinSpeed() / desCompSpeed;
+            ySpeed = ySpeed * constraints.getMinSpeed() / desCompSpeed;
+        }
+
+        double dx = xSpeed - lastXSpeed;
+        double dy = ySpeed - lastYSpeed;
+
+        double deltaV = Math.hypot(dx, dy);
+
+        if (deltaV > 0.06) {
+            double scale =  constraints.getMaxAccel() *dt / deltaV;
+            dx *= scale;
+            dy *= scale;
+
+            xSpeed = lastXSpeed + dx;
+            ySpeed = lastYSpeed + dy;
+        }
+
+        ChassisSpeeds limitSpeed = new ChassisSpeeds(xSpeed, ySpeed, getRotationSpeed());
+
+        setLastSpeeds(limitSpeed.vxMetersPerSecond, limitSpeed.vyMetersPerSecond, getRotationSpeed());
+        
+        return limitSpeed;
+        
+    }
+
+    
 
     /**
      * Sets the suppliers for speed on the robot to be equal to local variables.
@@ -318,7 +361,6 @@ public class Path {
      */
     public void periodic(){
         SmartDashboard.putBoolean("firstSpeed?", firstSpeed);
-        setLastSpeeds(getTranslationXSpeed(), getTranslationYSpeed(), getRotationSpeed());
         firstSpeed = false;
 
         SmartDashboard.putNumber("Last X Speed", lastXSpeed);
