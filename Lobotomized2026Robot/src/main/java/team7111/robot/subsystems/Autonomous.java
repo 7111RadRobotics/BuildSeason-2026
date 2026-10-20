@@ -21,8 +21,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import team7111.lib.pathfinding.Path;
 import team7111.lib.pathfinding.Waypoint;
 import team7111.lib.pathfinding.WaypointConstraints;
-import team7111.robot.subsystems.Aimbot.presetShotType;
-import team7111.robot.subsystems.Aimbot.shotType;
 import team7111.robot.subsystems.SuperStructure.SuperState;
 import team7111.robot.utils.AutoAction;
 
@@ -169,10 +167,8 @@ public class Autonomous extends SubsystemBase {
         // each auto is an array of "AutoAction's"
         switch (autoName) {
             case forwardTest:
-                auto.add(new AutoAction(SuperState.preparePass).withAdditionalCondition(() -> {
-                    superStructure.targeting.setPreset(presetShotType.Trench);
-                    return true;
-                }));
+    
+                
                          
                 auto.add(new AutoAction(SuperState.preparePass).withAlternateCondition( () -> timeDelay(4)));
                 auto.add(new AutoAction(getPath(Paths.forward)));
@@ -185,133 +181,81 @@ public class Autonomous extends SubsystemBase {
 
             case rt_TrenchOutpost:
                 auto = getAutonomous(Autos.rt_Trench);
-                auto.add(new AutoAction(SuperState.intake).withNoConditions());
                 auto.add(new AutoAction(getPath(Paths.outpost)));
-                auto.add(new AutoAction(SuperState.deployed).withNoConditions());
-                auto.add(new AutoAction(getNearestHubScoringPath(hubPresetPoses[0])));
-                auto.add(new AutoAction(SuperState.prepareHubShot));
-                auto.add(new AutoAction(SuperState.score).withAlternateCondition(() -> {
-                    superStructure.targeting.setShotType(shotType.Parabolic);
-                    return timeDelay(10);
-                }));
+                
+                
                 break;
             
             case lt_TrenchDepot:
                 auto = getAutonomous(Autos.lt_Trench);
-                auto.add(new AutoAction(SuperState.intake).withNoConditions());
                 auto.add(new AutoAction(getPath(Paths.depotLTrench)));
                 auto.add(new AutoAction(getPath(Paths.hubSetpointL)));
-                auto.add(new AutoAction(SuperState.prepareHubShot));
-                auto.add(new AutoAction(SuperState.score).withAlternateCondition(() -> {
-                    superStructure.targeting.setShotType(shotType.Parabolic);
-                    return timeDelay(10);
-                }));
+                
                 break;
             
             case lt_Bump:
                 assumedStartingPose = lTrenchStartPose;
-                auto.add(new AutoAction(SuperState.intake));
+               
                 auto.add(new AutoAction(getPath(Paths.LNsweep)));
-                auto.add(new AutoAction(SuperState.deployed));
+              
                 auto.add(new AutoAction(getPath(Paths.LSweepToBump)));
                 auto.add(new AutoAction(getPath(Paths.hubSetpointL)));
-                auto.add(new AutoAction(SuperState.prepareHubShot));
-                auto.add(new AutoAction(SuperState.score).withAlternateCondition(() -> {
-                    superStructure.targeting.setShotType(shotType.Parabolic);
-                    return timeDelay(10);
-                }));
+                
                 break;
             case rt_Bump:
                 assumedStartingPose = rTrenchStartPose;
-                auto.add(new AutoAction(SuperState.intake));
+                
                 auto.add(new AutoAction(getPath(Paths.RNsweep)));
-                auto.add(new AutoAction(SuperState.deployed));
+                
                 auto.add(new AutoAction(getPath(Paths.RSweepToBump)));
                 auto.add(new AutoAction(getPath(Paths.hubSetpointR)));
-                auto.add(new AutoAction(SuperState.prepareHubShot));
-                auto.add(new AutoAction(SuperState.score).withAlternateCondition(() -> {
-                    superStructure.targeting.setShotType(shotType.Parabolic);
-                    return timeDelay(10);
-                }));
+                
                 break;
             case lt_Trench:
                 assumedStartingPose = lTrenchStartPose;
-                auto.add(new AutoAction(SuperState.intake).withNoConditions());
+               
                 auto.add(new AutoAction(getPath(Paths.LNsweep)));
                 auto.add(new AutoAction(getPath(Paths.LSweepToTrench)));
-                auto.add(new AutoAction(SuperState.prepareHubShot));
-                auto.add(new AutoAction(SuperState.score).withAlternateCondition(() -> {
-                    superStructure.targeting.setShotType(shotType.Parabolic);
-                    return timeDelay(15);
-                }));
-
+                
                 break;
             case rt_Trench:
                 assumedStartingPose = rTrenchStartPose;
-                auto.add(new AutoAction(SuperState.intake).withNoConditions());
+             
                 auto.add(new AutoAction(getPath(Paths.RNsweep)));
                 auto.add(new AutoAction(getPath(Paths.RSweepToTrench)));
-                auto.add(new AutoAction(SuperState.prepareHubShot));
-                auto.add(new AutoAction(SuperState.score).withAlternateCondition(() -> {
-                    superStructure.targeting.setShotType(shotType.Parabolic);
-                    return timeDelay(15);
-                }));
+                
                 break;
             case lt_TrenchTrench:
                 auto = getAutonomous(Autos.lt_Trench);
-                auto.add(new AutoAction(SuperState.intake).withAlternateCondition(() -> {
-                    superStructure.targeting.setShotType(shotType.Transport); 
-                    return true;}));
+                
                 auto.add(new AutoAction(getPath(Paths.sideSwipeL)));
                 auto.add(new AutoAction(getPath(Paths.trenchLAlliance).withRotation(-90)));
-                auto.add(new AutoAction(SuperState.preparePass).withAlternateCondition(() -> {
-                    superStructure.targeting.setShotType(shotType.Parabolic);
-                    return timeDelay(5);
-                }));
+               
                 break;
             case rt_TrenchTrench:
                 auto = getAutonomous(Autos.rt_Trench);
-                auto.add(new AutoAction(SuperState.intake).withAlternateCondition(() -> {
-                    superStructure.targeting.setShotType(shotType.Transport); 
-                    return true;}));
+                
                 auto.add(new AutoAction(getPath(Paths.sideSwipeR)));
                 auto.add(new AutoAction(getPath(Paths.trenchRAlliance).withRotation(90)));
-                auto.add(new AutoAction(SuperState.preparePass).withAlternateCondition(() -> {
-                    superStructure.targeting.setPreset(presetShotType.Trench);
-                    return timeDelay(5);
-                }));
                 break;
             case shoot:
                 assumedStartingPose = hubStartPose;
-                auto.add(new AutoAction(SuperState.prepareHubShot));
-                auto.add(new AutoAction(SuperState.score).withAlternateCondition(() -> timeDelay(5)));
-                break;
+                
             case shootDepot:
                 assumedStartingPose = hubStartPose;
-                auto.add(new AutoAction(SuperState.prepareHubShot).withAdditionalCondition(() -> {
-                    superStructure.targeting.setShotType(shotType.Parabolic);
-                    return true;
-                }));
-                auto.add(new AutoAction(SuperState.score).withAlternateCondition(() -> timeDelay(5)));
-                auto.add(new AutoAction(SuperState.intake));
+                
                 auto.add(new AutoAction(getPath(Paths.depot)).withOptionalCondition(() -> timeDelay(5)));
                 auto.add(new AutoAction(getPath(Paths.hubSetpointM)));
-                auto.add(new AutoAction(SuperState.prepareHubShot));
-                auto.add(new AutoAction(SuperState.score).withAlternateCondition(() -> timeDelay(5)));
+                
                 break;
             case shootOutpost:
                 assumedStartingPose = hubStartPose;
-                auto.add(new AutoAction(SuperState.prepareHubShot).withAdditionalCondition(() -> {
-                    superStructure.targeting.setShotType(shotType.Parabolic);
-                    return true;
-                }));
-                auto.add(new AutoAction(SuperState.score).withAlternateCondition(() -> timeDelay(5)));
-                auto.add(new AutoAction(SuperState.deployed));
+                
+                
                 auto.add(new AutoAction(getPath(Paths.outpost)));
-                auto.add(new AutoAction(SuperState.deployed).withAlternateCondition(() -> {return timeDelay(5);}));
+           
                 auto.add(new AutoAction(getPath(Paths.hubSetpointM)));
-                auto.add(new AutoAction(SuperState.prepareHubShot));
-                auto.add(new AutoAction(SuperState.score).withAlternateCondition(() -> timeDelay(5)));
+               
                 break;
             case backupShoot:
                 auto = getAutonomous(Autos.shoot);

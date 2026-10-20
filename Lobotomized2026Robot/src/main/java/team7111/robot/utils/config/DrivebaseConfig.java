@@ -3,6 +3,7 @@ package team7111.robot.utils.config;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.fasterxml.jackson.databind.deser.std.MapDeserializer;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -330,17 +331,96 @@ public class DrivebaseConfig {
         return new DrivebaseConfig(moduleTypes, moduleConstants, width, length, wheelDiameter, 0);
     }
 
-    public static DrivebaseConfig getBoxChassis(){
-        GenericSwerveModule[] moduleTypes = new GenericSwerveModule[]{
-            
-        };
-        SwerveModuleConfig[] moduleConstants = new SwerveModuleConfig[]{
+    public static DrivebaseConfig getBoxChassis(boolean isSim){
 
+        double width = Units.inchesToMeters(20);
+        double length = Units.inchesToMeters(20);
+        double wheelDiameter = Units.inchesToMeters(4);
+
+        double driveGearing = 6.72 / 1.0; 
+        double angleGearing = 468.0 / 35.0;
+        double driveMOI = 0.25;
+        double angleMOI = 0.001;
+        int driveCurrentLimit = 40;
+        int angleCurrentLimit = 40;
+        boolean driveInversion = false;
+        boolean angleInversion = true;
+        boolean driveBrakeMode = true;
+        boolean angleBrakeMode = false;
+        PIDController drivePID = new PIDController(0.35, 0.001, 0.0);
+        PIDController anglePID = new PIDController(0.5, 0.0, 0.0);
+        SimpleMotorFeedforward driveFF = new SimpleMotorFeedforward(0.001, 0.0);
+        SimpleMotorFeedforward angleFF = new SimpleMotorFeedforward(0.001, 0.0);
+        SwerveMotorConfig driveMotorConfig = new SwerveMotorConfig(DCMotor.getNEO(1), driveInversion, driveBrakeMode, driveGearing, driveMOI, driveCurrentLimit, drivePID, driveFF);
+        SwerveMotorConfig angleMotorConfig = new SwerveMotorConfig(DCMotor.getNEO(1), angleInversion, angleBrakeMode, angleGearing, angleMOI, angleCurrentLimit, anglePID, angleFF);
+        CANcoderConfiguration encoderConfig = new CANcoderConfiguration().withMagnetSensor(
+            new MagnetSensorConfigs().withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
+            .withAbsoluteSensorDiscontinuityPoint(0.5));
+
+        double canCoder1Offset = isSim
+            ? 0
+            : 0.00;
+        double canCoder2Offset = isSim
+            ? 0
+            : 0.00;
+        double canCoder3Offset = isSim
+            ? 0
+            : 0.00;
+        double canCoder4Offset = isSim
+            ? 0
+            : 0.00;
+        
+        
+        SwerveModuleConfig[] moduleConstants = new SwerveModuleConfig[]{
+            //Front left
+            new SwerveModuleConfig(
+                new SwerveMotorConfig(2, driveMotorConfig), 
+                new SwerveMotorConfig(2, angleMotorConfig), 
+                new CTREEncoder(2, encoderConfig), canCoder2Offset, wheelDiameter * Math.PI,
+                new Translation2d(length/2 - swervemoduleDistXOffset, -width/2 - swervemoduleDistYOffset)),
+
+            // Front right
+            new SwerveModuleConfig(
+                new SwerveMotorConfig(4, driveMotorConfig),
+                new SwerveMotorConfig(4, angleMotorConfig),
+                new CTREEncoder(4, encoderConfig), canCoder4Offset, wheelDiameter * Math.PI,
+                new Translation2d(length/2 - swervemoduleDistXOffset, width/2 - swervemoduleDistYOffset)),
+            
+            // Back left
+            new SwerveModuleConfig(
+                new SwerveMotorConfig(1, driveMotorConfig), 
+                new SwerveMotorConfig(1, angleMotorConfig), 
+                new CTREEncoder(1, encoderConfig), canCoder1Offset, wheelDiameter * Math.PI,
+                new Translation2d(-length/2 - swervemoduleDistXOffset, -width/2 - swervemoduleDistYOffset)),
+
+            //Back right
+            new SwerveModuleConfig(
+                new SwerveMotorConfig(3, driveMotorConfig), 
+                new SwerveMotorConfig(3, angleMotorConfig), 
+                new CTREEncoder(3, encoderConfig), canCoder3Offset, wheelDiameter * Math.PI,
+                new Translation2d(-length/2 - swervemoduleDistXOffset, width/2 - swervemoduleDistYOffset)),
         };
-        double width = 0;
-        double length = 0;
-        double wheelDiameter = 4;
-        double moi = 0.001;
+
+        GenericSwerveModule[] moduleTypes;
+            if(isSim){
+            drivePID.setPID(1, 0, 0);
+            anglePID.setPID(50, 0, 0);
+            moduleTypes = new GenericSwerveModule[]{
+                new SimSwerveModule(moduleConstants[0]),
+                new SimSwerveModule(moduleConstants[1]),
+                new SimSwerveModule(moduleConstants[2]),
+                new SimSwerveModule(moduleConstants[3]),
+            };
+        } else {
+            moduleTypes = new GenericSwerveModule[] {
+                new SparkMaxSwerveModule(moduleConstants[0]),
+                new SparkMaxSwerveModule(moduleConstants[1]),
+                new SparkMaxSwerveModule(moduleConstants[2]),
+                new SparkMaxSwerveModule(moduleConstants[3])
+            };
+        }
+            
+        
 
         return new DrivebaseConfig(moduleTypes, moduleConstants, width, length, wheelDiameter, 0);
     }

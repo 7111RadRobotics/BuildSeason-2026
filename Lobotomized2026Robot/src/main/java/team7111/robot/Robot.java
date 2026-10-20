@@ -12,11 +12,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import team7111.robot.subsystems.Aimbot;
 import team7111.robot.subsystems.Autonomous;
-import team7111.robot.subsystems.Hopper;
-import team7111.robot.subsystems.Intake;
-import team7111.robot.subsystems.Shooter;
 import team7111.robot.subsystems.SuperStructure;
 import team7111.robot.subsystems.Swerve;
 import team7111.robot.subsystems.Vision;
@@ -34,10 +30,6 @@ public class Robot extends TimedRobot {
     private Autonomous auto;
     private Swerve swerve = new Swerve();
     private Vision vision = new Vision();
-    private Aimbot aimbot = new Aimbot(vision, swerve::getPose, swerve::getVelocity);
-    private Intake intake = new Intake();
-    private Hopper hopper = new Hopper();
-    private Shooter shooter = new Shooter(aimbot);
     private SuperStructure superStructure;
 
     /**
@@ -53,7 +45,7 @@ public class Robot extends TimedRobot {
             return false;
         });
         auto = new Autonomous(field);
-        superStructure = new SuperStructure(auto, swerve, vision, aimbot, intake, hopper, shooter, field);
+        superStructure = new SuperStructure(auto, swerve, vision, field);
     }
 
     /**
