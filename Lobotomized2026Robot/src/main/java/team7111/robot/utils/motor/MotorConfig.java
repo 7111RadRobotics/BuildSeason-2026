@@ -3,7 +3,9 @@ package team7111.robot.utils.motor;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.thethriftybot.devices.ThriftyNova.ThriftyNovaConfig;
 
+import edu.wpi.first.apriltag.AprilTagPoseEstimator.Config;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
@@ -22,6 +24,8 @@ public class MotorConfig {
     public SimpleMotorFeedforward simpleFF = null;
     public TalonFXConfiguration talonConfig = new TalonFXConfiguration();
     public SparkBaseConfig sparkConfig = new SparkMaxConfig();
+    public ThriftyNovaConfig novaConfig = new ThriftyNovaConfig();
+    
 
     public MotorConfig(
         double gearRatio, int currentLimit, boolean isInverted, boolean isBreakMode, 
@@ -47,6 +51,11 @@ public class MotorConfig {
 
     public MotorConfig withSparkConfig(SparkBaseConfig config){
         this.sparkConfig = config;
+        return this;
+    }
+
+    public MotorConfig withNovaConfig(ThriftyNovaConfig config){
+        this.novaConfig = config;
         return this;
     }
 
